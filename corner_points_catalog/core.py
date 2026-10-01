@@ -13,6 +13,9 @@ from . import msk
 # qgis_process) идёт через core.py, а plugin.py при этом не загружается.
 msk.USER_AGENT = ("QGIS plugin corner_points_catalog "
                   "(https://github.com/Slider007/qgis-corner-points-catalog)")
+# Там же текст об обрыве связи: в оригинале он зовёт нажать «Определить заново» —
+# это кнопка окна модуля «СК проекта», у нас её нет. Что делать, дописывает алгоритм.
+msk.NO_ANSWER = "Нет связи с сервисом адресов OpenStreetMap."
 
 # Nominatim (OpenStreetMap) разрешает не больше одного запроса в секунду
 NOMINATIM_DELAY = 1.0

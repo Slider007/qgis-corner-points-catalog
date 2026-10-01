@@ -298,6 +298,20 @@ class TableTest(unittest.TestCase):
                                              "Казахстан", None])
         self.assertIn("МСК не найдена", " ".join(result["feedback"].warnings))
 
+    def test_offline_message_fits_this_module(self):
+        # msk.py общий с «СК проекта», и его текст зовёт нажать «Определить заново» —
+        # кнопку того окна. core.py подставляет свой текст, алгоритм дописывает, что делать
+        self.assertNotIn("Определить заново", msk.NO_ANSWER)
+        self.assertIn("corner_points_catalog", msk.USER_AGENT)
+        use_geocode(FakeGeocode(error=msk.NO_ANSWER))
+        with self.assertRaises(Exception) as caught:
+            run(sample_layer())
+        text = str(caught.exception)
+        self.assertIn("Нет связи с сервисом адресов OpenStreetMap.", text)
+        self.assertIn("МСК для всех точек", text)
+        self.assertNotIn("Определить заново", text)
+        self.assertEqual(text.count("Проверьте интернет"), 1)
+
     def test_offline(self):
         use_geocode(FakeGeocode(error="Нет ответа от сервиса адресов OpenStreetMap: timeout"))
         with self.assertRaisesRegex(Exception, "задайте МСК вручную"):

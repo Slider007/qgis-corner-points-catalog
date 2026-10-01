@@ -201,8 +201,9 @@ class CoordinateTableAlgorithm(QgsProcessingAlgorithm):
                     code, subject = lookup.subject(wgs.x(), wgs.y())
                 except LookupError as e:
                     raise QgsProcessingException(self.tr(
-                        "{} Проверьте интернет или задайте МСК вручную в окне алгоритма "
-                        "(панель инструментов анализа → Угловые точки).").format(e))
+                        "{} Проверьте интернет или задайте МСК вручную: панель инструментов "
+                        "анализа → «Угловые точки» → «Ведомость координат угловых точек», "
+                        "поле «МСК для всех точек».").format(e))
                 item = core.msk_item(code, wgs.x())
                 if item is None:
                     outside.append(num)
