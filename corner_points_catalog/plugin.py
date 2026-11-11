@@ -188,14 +188,19 @@ class CornerPointsCatalogPlugin:
             if feedback.isCanceled():
                 self.message("Расчёт отменён.", Qgis.MessageLevel.Warning)
             else:
-                text = feedback.errors[-1] if feedback.errors else "Не удалось посчитать координаты."
+                text = feedback.errors[-1] if feedback.errors else (
+                    "Не удалось посчитать координаты. Проверьте, что слой точек открывается и в проекте задана "
+                    "система координат, и повторите; если не помогло — откройте «Журнал сообщений» "
+                    "(вкладка «Обработка») и покажите текст ошибки.")
                 self.message(text, Qgis.MessageLevel.Critical, 0)
             return
         from .processing.table_algorithm import apply_aliases
 
         table = context.takeResultLayer(results["OUTPUT"])
         if table is None:
-            self.message("Таблица не получена.", Qgis.MessageLevel.Critical, 0)
+            self.message("Таблица не получена: расчёт закончился без результата. Повторите; если не помогло — "
+                         "откройте «Журнал сообщений» (вкладка «Обработка») и покажите текст ошибки.",
+                         Qgis.MessageLevel.Critical, 0)
             return
         table.setName("{} — {}".format(TITLE, name))
         apply_aliases(table, results.get("ALIASES") or {})

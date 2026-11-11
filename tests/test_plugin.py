@@ -72,8 +72,8 @@ QgsApplication.processingRegistry().addProvider(PROVIDER)
 ALG = "cornerpoints:coordinates"
 MSK50_1 = next(i for i in msk.items() if i["name"].startswith("МСК-50 зона 1"))
 
-# Вершины контура 3 из «Границы запроса МО (изм).gpkg» (КВЛ Дорохово — Созвездие)
-# и строки 1–9 «Ведомость координат МО.xlsx» (ГГЭ, 2026-08-27) для них
+# Вершины проектного контура (Московская область) и строки 1–9 выпущенной ведомости координат
+# (подготовлена другой организацией, 2026-08) для них
 SAMPLE = [
     (1, 36.648158184264, 55.277835174641, "55°16′40,21″", "36°38′53,37″", 415985.909, 1324143.949),
     (2, 36.644062839845, 55.277759515109, "55°16′39,94″", "36°38′38,63″", 415973.146, 1323883.843),
@@ -533,6 +533,26 @@ class ButtonTest(unittest.TestCase):
         self.assertEqual(level, Qgis.MessageLevel.Success)
         self.assertIn("Готово: 1 строка", text)
         self.assertIn("Считаю координаты: 1 точка", self.iface.bar.messages[-2][0])
+
+    def test_fallback_messages_say_what_to_do(self):
+        """Запасные ветки («не посчиталось», «таблицы нет») тоже называют следующий шаг."""
+        from qgis.core import QgsProcessingContext
+        self.plugin._running = (None, QgsProcessingContext(), plugin_module._Feedback(), "слой")
+        self.plugin.finished(False, {})
+        text, level = self.last()
+        self.assertEqual(level, Qgis.MessageLevel.Critical)
+        self.assertIn("Журнал сообщений", text)
+        self.plugin._running = (None, QgsProcessingContext(), plugin_module._Feedback(), "слой")
+        self.plugin.finished(True, {"OUTPUT": "нет такого слоя"})
+        text, level = self.last()
+        self.assertIn("Повторите", text)
+
+    def test_msk_parameter_label_is_short(self):
+        """Длинная подпись давала горизонтальную прокрутку панели; пояснение перенесено в справку поля."""
+        algorithm = QgsApplication.processingRegistry().algorithmById("cornerpoints:coordinates")
+        param = algorithm.parameterDefinition("MSK")
+        self.assertEqual(param.description(), "МСК для всех точек")
+        self.assertIn("через интернет", param.help())
 
     def test_many_points_asks_first(self):
         # 101 точка — это больше полутора минут: сначала спрашиваем

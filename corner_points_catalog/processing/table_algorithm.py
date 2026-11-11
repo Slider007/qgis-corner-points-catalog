@@ -124,9 +124,11 @@ class CoordinateTableAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterEnum(
             self.GEO, self.tr("Широта и долгота в системе"),
             options=[name for name, _ in GEO_CRS], defaultValue=0))
-        self.addParameter(QgsProcessingParameterCrs(
-            self.MSK, self.tr("МСК для всех точек (пусто — определить по месту через интернет)"),
-            optional=True))
+        msk_param = QgsProcessingParameterCrs(self.MSK, self.tr("МСК для всех точек"), optional=True)
+        msk_param.setHelp(self.tr(
+            "Если оставить пустым, МСК определяется по месту каждой точки через интернет "
+            "(сервис адресов OpenStreetMap): ему уходят только координаты выделенных точек."))
+        self.addParameter(msk_param)
         for name, text in ((self.SEC_DECIMALS, "Знаков после запятой в секундах"),
                            (self.M_DECIMALS, "Знаков после запятой в метрах")):
             param = QgsProcessingParameterNumber(
