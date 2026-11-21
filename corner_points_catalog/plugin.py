@@ -207,8 +207,11 @@ class CornerPointsCatalogPlugin:
         QgsProject.instance().addMapLayer(table)
         self.iface.showAttributeTable(table)
         done = "Готово: {}.".format(core.plural(table.featureCount(), "строка", "строки", "строк"))
-        excel = ("В Excel — «Экспорт → Сохранить как…», формат XLSX, флажок "
-                 "«Use aliases for exported name» (русские заголовки).")
+        # подписи меню QGIS — по-русски и в скобках по-английски: в 3.40 они переведены,
+        # в 4.2 частью нет, а прежняя «Сохранить как…» не совпадала ни с одной версией
+        excel = ("В Excel: правой кнопкой по таблице → «Экспорт → Сохранить объекты как…» "
+                 "(Save Features As…), формат XLSX, флажок «Использовать псевдонимы для "
+                 "экспортируемого имени» (Use aliases for exported name) — заголовки будут русскими.")
         if feedback.warnings:
             # итог виден всегда: предупреждение не должно прятать, где таблица и как её сохранить
             self.message(" ".join([done] + feedback.warnings + [excel]),
